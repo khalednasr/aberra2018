@@ -77,6 +77,33 @@ proc calcesE() { local theta,phi
 		}
 	}
 }
+// input theta, and phi angles of E-field, assigns Ve to all compartments (es_xtra(x)) for unit E-field (V/m)
+proc calcesETwoFields() { local theta,phi,theta2,phi2
+	theta = $1
+	phi = $2
+	theta2 = $3
+	phi2 = $4
+	theta = theta*PI/180
+	phi = phi*PI/180
+	theta2 = theta2*PI/180
+	phi2 = phi2*PI/180
+	Ex = sin(theta)*cos(phi)
+	Ey = sin(theta)*sin(phi)
+	Ez = cos(theta)
+	Ex2 = sin(theta2)*cos(phi2)
+	Ey2 = sin(theta2)*sin(phi2)
+	Ez2 = cos(theta2)
+	forall {
+		if (ismembrane("xtra")) {
+			for(x,0){
+                // Ve in [mV] for E of 1 [V/m] <= µm*1e-3 = mm * 1mV/mm = mV
+				// es_xtra(x) = -(Ex*x_xtra(x) + Ey*y_xtra(x) + Ez*z_xtra(x))*1e-3 
+                es_xtra(x) = -(Ex*x_xtra(x) + Ey*(-z_xtra(x)) + Ez*y_xtra(x))*1e-3 
+                es2_xtra(x) = -(Ex2*x_xtra(x) + Ey2*(-z_xtra(x)) + Ez2*y_xtra(x))*1e-3 
+			}
+		}
+	}
+}
 // input electrode position, x0,y0,z0 and conductivity, sigma_e, assigns Ve to all compartments (es_xtra(x)) for unit current (µA)
 proc calcesI(){ local x0,y0,z0,sigma_e,r
 	x0 = $1 // electrode position in um
