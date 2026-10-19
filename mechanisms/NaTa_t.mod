@@ -1,9 +1,9 @@
 :Reference :Colbert and Pan 2002
-: **Modified to use 'celsius' for temperature to correct rates by Aman Aberra**
+
 NEURON	{
 	SUFFIX NaTa_t
 	USEION na READ ena WRITE ina
-	RANGE gNaTa_tbar, gNaTa_t, ina
+	RANGE gNaTa_tbar, gNaTa_t, ina, mtau_scale, htau_scale
 }
 
 UNITS	{
@@ -14,6 +14,8 @@ UNITS	{
 
 PARAMETER	{
 	gNaTa_tbar = 0.00001 (S/cm2)
+	mtau_scale = 0.4 (1) : scaling on activation time constant
+    htau_scale = 0.4 (1) : scaling on inactivation time constant
 }
 
 ASSIGNED	{
@@ -57,14 +59,14 @@ INITIAL{
 PROCEDURE rates(){
   LOCAL qt
   :qt = 2.3^((34-21)/10)
-  qt = 2.3^((celsius-21)/10)		
+  qt = 2.3^((celsius-21)/10)
   UNITSOFF
     if(v == -38){
     	v = v+0.0001
     }
 		mAlpha = (0.182 * (v- -38))/(1-(exp(-(v- -38)/6)))
 		mBeta  = (0.124 * (-v -38))/(1-(exp(-(-v -38)/6)))
-		mTau = (1/(mAlpha + mBeta))/qt
+		mTau = (mtau_scale/(mAlpha + mBeta))/qt
 		mInf = mAlpha/(mAlpha + mBeta)
 
     if(v == -66){
@@ -73,7 +75,7 @@ PROCEDURE rates(){
 
 		hAlpha = (-0.015 * (v- -66))/(1-(exp((v- -66)/6)))
 		hBeta  = (-0.015 * (-v -66))/(1-(exp((-v -66)/6)))
-		hTau = (1/(hAlpha + hBeta))/qt
+		hTau = (htau_scale/(hAlpha + hBeta))/qt
 		hInf = hAlpha/(hAlpha + hBeta)
 	UNITSON
 }
